@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏓</text></svg>" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PickleSpot - Book Indoor Pickleball Courts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'DM Sans', sans-serif;
+        background: #0a0e17;
+        color: #faf9f6;
+        overflow-x: hidden;
+      }
+      .font-display {
+        font-family: 'Bebas Neue', sans-serif;
+      }
+      .gradient-lime {
+        background: linear-gradient(135deg, #c4f542 0%, #a3d934 100%);
+      }
+      .text-lime {
+        color: #c4f542;
+      }
+      .bg-lime {
+        background-color: #c4f542;
+      }
+      .border-lime {
+        border-color: #c4f542;
+      }
+      .court-pattern {
+        background-image: 
+          linear-gradient(rgba(196, 245, 66, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(196, 245, 66, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+      }
+      .diagonal-accent {
+        position: relative;
+      }
+      .diagonal-accent::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: -50px;
+        width: 100px;
+        height: 100%;
+        background: linear-gradient(135deg, transparent 45%, rgba(196, 245, 66, 0.1) 45%, rgba(196, 245, 66, 0.1) 55%, transparent 55%);
+        pointer-events: none;
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 20px rgba(196, 245, 66, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(196, 245, 66, 0.5);
+        }
+      }
+      .animate-slide-up {
+        animation: slideUp 0.6s ease-out forwards;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+      }
+      .animate-pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+      }
+      .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+      .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+      .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+      .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+      .glass {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(196, 245, 66, 0.1);
+      }
+      .venue-card {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .venue-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        border-color: rgba(196, 245, 66, 0.4);
+      }
+      .time-slot {
+        transition: all 0.2s ease;
+      }
+      .time-slot:hover:not(.booked) {
+        background: rgba(196, 245, 66, 0.2);
+        border-color: #c4f542;
+        transform: scale(1.05);
+      }
+      .time-slot.selected {
+        background: #c4f542;
+        color: #0a0e17;
+        border-color: #c4f542;
+      }
+      .time-slot.booked {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+        background: transparent;
+      }
+      input[type="range"]::-webkit-slider-track {
+        height: 4px;
+        background: rgba(196, 245, 66, 0.2);
+        border-radius: 2px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #c4f542;
+        border-radius: 50%;
+        margin-top: -8px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+      }
+      .noise-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0.03;
+        z-index: 1000;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      }
+      .court-mini {
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+        position: relative;
+        overflow: hidden;
+      }
+      .court-mini::before {
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 4px;
+      }
+      .court-mini::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-50%);
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0e17;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(196, 245, 66, 0.3);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(196, 245, 66, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise-overlay"></div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
